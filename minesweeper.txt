@@ -1,0 +1,959 @@
+#include <cstdlib>
+#include <iostream>
+#include<graphics.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include<time.h>
+int base_min[400]={};                   //araye shamele 0 va 1 baraye minha
+int x_coordinates[400]={};
+int y_coordinates[400]={};        //Mokhtasate markaze tamame mosalasha.
+int focus[1]={};                //araye shmele 0 va tanha 1 baraye namayeshe focus                                                               // Y '' ''.
+int up_down[400]={};                   //Araye ke neshan midahad mosalas betarafe balast(1) ya payeen(-1).
+int size=5;
+int x_basepoint;                //X markaze avalin khane ke focus darad vaghti bazi aghaz mishavad.
+int y_basepoint;
+int entered[400][2]={};
+int spaced[400]={};
+int temp_min[1]={20};
+int zamine_color=910986;
+int init_mosalas_color=342345;
+time_t zaman[2];
+float k;
+int i,j;
+char convert_int_to_char(int figure)
+{
+     char ten[10]={'0','1','2','3','4','5','6','7','8','9'};                  //adade integere yek raghami ra be char tabdil mikonad.
+     return(ten[figure]);
+}
+void movarrab (int startx,int starty,int endx,int endy)
+{
+ 	 int a=(endy-starty)/(endx-startx);
+ 	 int b=starty-a*startx;
+ 	 int x=startx;                                                           //keshidane parekhatte mayel.
+ 	 int y=starty;
+ 	 while((x!=endx)&&(y!=endy))
+ 	 {
+	  	  line(x,y,x+1,y+a);
+			y=y+a;
+			x=x+1;
+     }
+} 					
+void draw_rectangle(int x,int y,int length,int width, int inner_color,int border_color)
+{
+    int i;
+    setcolor(border_color);
+    for(i=0;i<4;i++)  rectangle(x-length/2-i,y-width/2-i,x+length/2+i,y+width/2+i);   
+    char p[8]={10,20,30,40,50,60,70,80};                                  //   
+    setfillpattern(p,2);
+    setfillstyle(1,inner_color);
+    floodfill(x,y,border_color);
+}
+void fill_draw_circle(int x_center,int y_center,int radious,int color)
+{
+      setcolor(15);
+      circle(x_center,y_center,radious);
+     char p[8]={10,20,30,40,50,60,70,80};                                  //In tabe 
+	 setfillpattern(p,2);
+     setfillstyle(1,color);
+     floodfill(x_center,y_center,15);
+}      
+void random_min(int n)
+{
+    int i;
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+     int r;
+     time_t t;
+      srand((unsigned)time(&t));
+     for(i=0;i<n;i++)
+     {
+        
+         r=rand()%int(100*k*k);
+         printf("%d",r);
+         
+         if(base_min[r]==0)  base_min[r]=1;
+         else if(base_min[r]==1)  i=i-1;
+     }
+}            
+ void adad (int num,int x,int y)
+{
+     if (num==0) outtextxy(x,y,"0");
+     else if (num==1) outtextxy(x,y,"1");
+     else if (num==2) outtextxy(x,y,"2");
+     else if (num==3) outtextxy(x,y,"3");
+     else if (num==4) outtextxy(x,y,"4");
+     else if (num==5) outtextxy(x,y,"5");
+     else if (num==6) outtextxy(x,y,"6");
+     else if (num==7) outtextxy(x,y,"7");
+     else if (num==8) outtextxy(x,y,"8");
+     else outtextxy(x,y,"9");
+}
+void display_integer_number(int number,int x,int y,int back_color,int for_color,int size)
+{
+    settextstyle(0,0,2);
+    int hezargan,sadgan,dahgan,yekan,temp;
+    setbkcolor(back_color);
+    setcolor(for_color);
+    if ((number>=1000)&&( number<10000)) 
+    {                    
+      hezargan=number/1000;
+      temp=number%1000;
+      sadgan=temp/100;
+      temp=number%100;
+      dahgan=temp/10;
+      yekan=number%10;
+      adad(hezargan,x-21,y);
+      adad(sadgan,x-7,y);
+      adad(dahgan,x+7,y);
+      adad(yekan,x+21,y);
+    }
+    if ((number>=100)&&( number<1000)) 
+    {                    
+      sadgan=number/100;
+      temp=number%100;
+      dahgan=temp/10;
+      yekan=number%10;
+      adad(sadgan,x-14,y);
+      adad(dahgan,x,y);
+      adad(yekan,x+14,y);
+    }
+    else if ((number>=10)&&( number<100)) 
+    {                    
+      //setcolor(zamine_color);
+      //adad(1,x-5,y);
+      //adad(0,x,y);
+      //adad(0,x+5,y);
+      setcolor(15);
+      dahgan=number/10;
+      yekan=number%10;
+      adad(dahgan,x-7,y);
+      adad(yekan,x+7,y);
+    }
+    else if (number<10) 
+    {                   
+     // setcolor(zamine_color);
+      //adad(1,x-3,y);
+     // adad(0,x+3,y);
+      setcolor(15);
+      yekan=number%10;
+      adad(yekan,x,y);
+    }
+}
+int shenasayee(char ch)
+{
+    int i;
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+    bool booleaner=false;
+    if (ch=='w')
+    {
+      int temp_y=y_coordinates[focus[0]]-int(60/k);
+      int temp_x=x_coordinates[focus[0]];
+      for(i=0;i<size*size;i++)
+      {
+        if ((temp_x==x_coordinates[i])&&(temp_y==y_coordinates[i]))
+        {
+              booleaner=true;
+              return(i);
+        }
+      }
+      if (booleaner==false) return(-1);
+    }
+    else if (ch=='a')
+    {
+      int temp_x=x_coordinates[focus[0]]-int(30/k);
+      int temp_y=y_coordinates[focus[0]];
+      for(i=0;i<size*size;i++)
+      {
+        if ((temp_x==x_coordinates[i])&&(temp_y==y_coordinates[i]))
+        {
+              booleaner=true;
+              return(i);
+        }
+      }
+      if (booleaner==false) return(-1);
+    }                                                            
+    else if (ch=='s')
+    {
+      int temp_y=y_coordinates[focus[0]]+int(60/k);
+      int temp_x=x_coordinates[focus[0]];
+      for(i=0;i<size*size;i++)
+      {
+        if ((temp_x==x_coordinates[i])&&(temp_y==y_coordinates[i]))
+        {
+              booleaner=true;
+              return(i);
+        }
+      }
+      if (booleaner==false) return(-1);
+    }
+    else if (ch=='d')
+    {
+      int temp_x=x_coordinates[focus[0]]+int(30/k);
+      int temp_y=y_coordinates[focus[0]];
+      for(i=0;i<size*size;i++)
+      {
+        if ((temp_x==x_coordinates[i])&&(temp_y==y_coordinates[i]))
+        {
+              booleaner=true;
+              return(i);
+        }
+      }
+      if (booleaner==false) return(-1);
+    } 
+ }             
+void next_focus(char ch)
+{
+    int temp_x = x_coordinates[focus[0]];
+    int temp_y = y_coordinates[focus[0]];                                        //ba gereftane ch  focus badi ra neshan midahad.
+    int next=shenasayee(ch);
+    if (next!=-1)
+    {
+      focus[0]=next;  
+    }
+}                          
+void fillcolor(int focus,int color)
+{    
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     char p[8]={10,20,30,40,50,60,70,80};                                  //In tabe 
+	 setfillpattern(p,2);
+     setfillstyle(1,color);
+     if (up_down[focus]==1)floodfill(x_coordinates[focus],y_coordinates[focus]-int(15/k),15);
+     else if (up_down[focus]==-1)floodfill(x_coordinates[focus],y_coordinates[focus]+int(15/k),15);
+}                     
+/*void out_fillcolor(int focus)
+{
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     char p[8]={10,20,30,40,50,60,70,80};                                  //In tabe 
+	 setfillpattern(p,2);
+     setfillstyle(1,init_mosalas_color);
+     if (up_down[focus]==1)floodfill(x_coordinates[focus],y_coordinates[focus]-int(15/k),15);
+     else if (up_down[focus]==-1)floodfill(x_coordinates[focus],y_coordinates[focus]+int(15/k),15);
+} */   
+void color_all_mosalas(int color)
+{
+     for(i=0;i<size*size;i++)   fillcolor(i,color);
+     fillcolor(focus[0],14);
+}
+void display_time()
+{
+
+   setcolor(15);                                             
+   zaman[0]=clock()/1000;  
+   if ((zaman[0]!=zaman[1])&&(zaman[0]-1>=zaman[1]))
+   {
+     draw_rectangle(220,100,50,30,3,3);
+     display_integer_number(zaman[0]+zaman[1],220,100,3,15,size);
+     zaman[1]=zaman[0];
+   }
+} 
+bool min_or_not(int focus,int temp_x,int temp_y)
+{
+     int i;
+     for (i=0;i<size*size;i++)
+     {
+         if ((temp_x==x_coordinates[i])&&(temp_y==y_coordinates[i])) 
+         {                                                                       //tayeen mikonad ke dar khane ba markaze x_temp va y_temp min vojood darad ya na/
+          if(base_min[i]==1) return true;
+         }
+     }
+     return false;
+}
+int neighber_min(int focus)
+{
+   if (size==20) k=2;
+   else if (size==10) k=1;
+   else if (size==5) k=0.5;
+   int counter=0;;
+   int temp1_x=x_coordinates[focus]-int(30/k);
+   int temp2_x=x_coordinates[focus]+int(30/k);                             
+   int temp1_y=y_coordinates[focus]+int(60/k);
+   int temp2_y=y_coordinates[focus]-int(60/k);                                     //tayyeen mikonad ke hamsaye haye khaneye focus chand ta min darand.
+   if (up_down[focus]==1)
+   {  
+      if (min_or_not(focus,temp1_x,y_coordinates[focus])) counter++;
+      if (min_or_not(focus,temp2_x,y_coordinates[focus])) counter++;
+      if (min_or_not(focus,x_coordinates[focus],temp1_y)) counter++;
+   }
+   else if (up_down[focus]==-1)
+   {  
+      if (min_or_not(focus,temp1_x,y_coordinates[focus])) counter++;
+      if (min_or_not(focus,temp2_x,y_coordinates[focus])) counter++;
+      if (min_or_not(focus,x_coordinates[focus],temp2_y)) counter++;
+   }  
+    return counter;                      
+}
+void insert_0123(int focus,int mode)
+{
+          if (size==20) k=2;
+          else if (size==10) k=1;
+          else if (size==5) k=0.5;
+          if (size==20) settextstyle(2,0,196);
+          int adad=neighber_min(focus);
+          if (up_down[focus]==1)
+          {
+               if (adad==0)
+               {
+                 if (mode==0)setbkcolor(14);
+                 else if(mode==1)setbkcolor(7);
+                 setcolor(1);
+                 outtextxy(x_coordinates[focus],y_coordinates[focus]+int(3/k),"0");
+                 setcolor(15);
+               }
+               else if (adad==1) 
+               {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(2);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]+int(3/k),"1");
+                   setcolor(15);
+               }
+               else if (adad==2)
+               {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(4);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]+int(3/k),"2");
+                   setcolor(15);
+               }
+               else if (adad==3)
+               {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(0);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]+int(3/k),"3");
+                   setcolor(15);
+               }
+          }
+          if (up_down[focus]==-1)
+          {
+              if (adad==0)
+              {
+                 if (mode==0)setbkcolor(14);
+                 else if(mode==1)setbkcolor(7);
+                 setcolor(1);
+                 outtextxy(x_coordinates[focus],y_coordinates[focus]-int(15/k),"0");
+                 setcolor(15);
+              }
+              else if (adad==1) 
+              {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(2);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]-int(15/k),"1");
+                   setcolor(15);
+              }
+              else if (adad==2)
+              {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(4);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]-int(15/k),"2");
+                   setcolor(15);
+              }
+              else if (adad==3)
+              {
+                   if (mode==0)setbkcolor(14);
+                   else if(mode==1)setbkcolor(7);
+                   setcolor(0);
+                   outtextxy(x_coordinates[focus],y_coordinates[focus]-int(15/k),"3");
+                   setcolor(15);
+              } 
+          }
+          //setbkcolor(zamine_color);
+} 
+void keyboard_select (char ch)
+{
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;                               //mahale focuse badi ra bad az zadane dokmeha ba khali kardane khane ghabli va por kardane khaneye jadid moshakhas mikonad.
+    if(spaced[focus[0]]==0) 
+    {
+      fillcolor(focus[0],init_mosalas_color);
+      if (entered[focus[0]][1]==1)
+      {
+              setbkcolor(init_mosalas_color);
+              setcolor(10);
+              if (size==20) settextstyle(2,0,196);
+              if (up_down[focus[0]]==1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");                      
+              else if (up_down[focus[0]]==-1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+              setcolor(15);
+      }
+    }
+    else if(spaced[focus[0]]==1)
+    {
+       fillcolor(focus[0],7);
+       insert_0123(focus[0],1);
+    }
+    next_focus(ch);
+    fillcolor(focus[0],14); 
+    if (entered[focus[0]][1]==1)
+    {
+              setbkcolor(14);
+              setcolor(10);
+              if (size==20) settextstyle(2,0,196);
+              if (up_down[focus[0]]==1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");                      
+              else if (up_down[focus[0]]==-1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+              setcolor(15); 
+    }                       
+    if(spaced[focus[0]]==1)  insert_0123(focus[0],0);  
+    
+   
+}    
+void check_wrong_entered(int color)
+{
+     int i;
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     for(i=0;i<size*size;i++) 
+     {
+         if ((entered[i][0])&&(!base_min[i]))
+         {
+             if (up_down[i]==1)
+             {
+                  setcolor(color);
+                  line( x_coordinates[i]-int(10/k),y_coordinates[i]-int(2/k),x_coordinates[i]+int(10/k),y_coordinates[i]+int(18/k)); 
+                  line( x_coordinates[i]-int(10/k),y_coordinates[i]+int(18/k),x_coordinates[i]+int(10/k),y_coordinates[i]-int(2/k)); 
+             }
+             else if (up_down[i]==-1)
+             {
+                  setcolor(color);
+                  line( x_coordinates[i]-int(10/k),y_coordinates[i]-int(19/k),x_coordinates[i]+int(10/k),y_coordinates[i]+1); 
+                  line( x_coordinates[i]-int(10/k),y_coordinates[i]+1,x_coordinates[i]+int(10/k),y_coordinates[i]-int(19/k)); 
+             }    
+         }
+     }
+     setcolor(15);
+}   
+
+bool check_wining()
+{
+     int i;
+     for(i=0;i<size*size;i++)
+     {
+             if (((base_min[i]==0)&&(spaced[i]==0))) return (false);
+     }
+     return (true);
+}
+void wining_effect()
+{
+    int i;
+    focus[0]=-2; 
+    char p[8]={10,20,30,40,50,60,70,80};                                  //In tabe 
+    setfillpattern(p,2);
+  for(i=0;i<1000;i++)
+  {
+    setfillstyle(1,900+9000*i);
+    floodfill(50,30,7);
+    delay(50);
+  }
+}
+ 
+void show_all_mins()
+{     
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     int i;
+     setcolor(zamine_color);
+     setcolor(15);
+     fillcolor(focus[0],init_mosalas_color);
+     check_wrong_entered(13);
+     if (up_down[focus[0]]==1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(8/k),int(10/k),0);
+     else if (up_down[focus[0]]==-1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(9/k),int(10/k),0);
+     for(i=0;i<size*size;i++) 
+      {
+        if (base_min[i]==1) 
+        {
+           delay(200);
+           if (up_down[i]==1) 
+           {   
+              if(entered[i][1]==1)
+              {
+                   setbkcolor(init_mosalas_color);
+                   setcolor(init_mosalas_color);
+                   if (size==20) settextstyle(2,0,196);
+                   outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");
+              }
+               fill_draw_circle(x_coordinates[i],y_coordinates[i]+int(8/k),int(10/k),0);
+           }
+           else if (up_down[i]==-1)
+           {
+               if(entered[i][1]==1)
+               {
+                   setbkcolor(init_mosalas_color);
+                   setcolor(init_mosalas_color);
+                   if (size==20) settextstyle(2,0,196);
+                   outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+               }
+               fill_draw_circle(x_coordinates[i],y_coordinates[i]-int(9/k),int(10/k),0);
+           }   
+        }
+      }
+      
+}  
+
+void remove_entered_circle(int radious)
+{
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+    setfillstyle(1,init_mosalas_color);
+    if (up_down[focus[0]]==1) 
+       {
+        setcolor(init_mosalas_color);
+        floodfill(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(8/k),15);
+        circle(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(8/k),radious);
+        setcolor(15);
+       }    
+    else if (up_down[focus[0]]==-1) 
+      { 
+       setcolor(init_mosalas_color);
+       floodfill(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(9/k),15);
+       circle(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(9/k),radious);
+       setcolor(15);
+      }
+}
+void space_key_action()
+{          
+  if (size==20) k=2;
+  else if (size==10) k=1;
+  else if (size==5) k=0.5;
+  if((entered[focus[0]][0]==0)&&(entered[focus[0]][1]==0))
+  {
+      if(base_min[focus[0]]==0) 
+      { 
+         spaced[focus[0]]=1;
+         insert_0123(focus[0],0);
+      }      
+      else if (base_min[focus[0]]==1) 
+      {
+         show_all_mins();
+         focus[0]=-1;
+      }
+  }
+} 
+
+void enter_key_action()
+{
+    int i;
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+    if(spaced[focus[0]]==0)
+    { 
+      if((entered[focus[0]][0]==0)&&(entered[focus[0]][1]==0))
+      {
+        entered[focus[0]][0]=1;
+        temp_min[0]=temp_min[0]-1;
+        display_integer_number(temp_min[0],800,100,3,15,size);
+        if (up_down[focus[0]]==1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(8/k),int(10/k),2);
+        else if (up_down[focus[0]]==-1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(9/k),int(10/k),2);
+      }
+      else if((entered[focus[0]][0]==1)&&(entered[focus[0]][1]==0))
+      {   
+         entered[focus[0]][0]=0;
+         temp_min[0]=temp_min[0]+1;
+         display_integer_number(temp_min[0],800,100,3,15,size);
+         entered[focus[0]][1]=1;
+         remove_entered_circle(int(10/k));
+         setbkcolor(14);
+         setcolor(10);
+         fillcolor(focus[0],14);
+         if (size==20) settextstyle(2,0,196);
+         if (up_down[focus[0]]==1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");
+         else if (up_down[focus[0]]==-1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+         setcolor(15);
+      }
+      else if((entered[focus[0]][0]==0)&&(entered[focus[0]][1]==1))
+      {
+         entered[focus[0]][1]=0;
+         setbkcolor(14);
+         setcolor(init_mosalas_color);
+         if (size==20) settextstyle(2,0,196);
+         if (up_down[focus[0]]==1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");
+         else if (up_down[focus[0]]==-1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+         fillcolor(focus[0],14); 
+         setcolor(15); 
+      }
+    }   
+} 
+
+                                                             
+void hashiye(int n,int color)
+{
+   setcolor(color);
+   int j;
+   for(j=0;j<n;j++)
+   {
+      line(200-n+1,700+j,800+n-1,700+j); 
+      line(200-j,700,500-j,100);
+      line(500+j,100,800+j,700);
+   }
+   for(j=n-1;j>=0;j--)
+   {
+      line(500-j,100+j-(n-1),500+j,100+j-(n-1));    
+   }
+   setcolor(15);
+}
+void mosalas(int i)
+{
+   if (size==20) k=2;
+   else if (size==10) k=1;
+   else if (size==5) k=0.5;
+   char p[8]={10,20,30,40,50,60,70,80}; 
+   setlinestyle(0,2,2);
+   line(200+int((30*i)/k),700-int((60*i)/k),800-int((30*i)/k),700-int((60*i)/k)); 
+   line(200+int((60*i)/k),700,500+int((30*i)/k),100+int((60*i)/k));
+   line(500-int((30*i)/k),100+int((60*i)/k),800-int((60*i)/k),700);
+          
+}   
+void idetify_all_centers(int x_basepoint,int y_basepoint)
+{
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     int i,id=0;
+     for(i=0;i<size;i++)
+	  { 
+	  		for(j=0;j<=2*i;j++)
+			  {
+			   			x_coordinates[id]=x_basepoint-int((i*30)/k)+int((30*j)/k);               //initializing  center's X component.
+ 			            id++;
+			  }
+	  }	  	   		  	
+    
+	id=0;
+	for(i=0;i<size;i++)
+	  { 
+	  		for(j=0;j<=2*i;j++)
+			  {
+			   			y_coordinates[id]=(y_basepoint+int((i*60)/k));                   //initializing  center's Y component.
+			   			id++;
+			  }
+	  }	
+}
+
+void identify_all_up_down()
+{
+     int sign,i;
+	for(i=0;i<size;i++)
+	  { 
+              sign=1;
+			  for(j=0;j<=2*i;j++)
+			  {
+			   			up_down[i*i+j]=sign;
+						sign=-sign;                                                           //initializing  center's X component.
+			  }
+	  }
+}                                   
+void draw_all_mosalasha()
+{
+
+  int i;
+  for(i=0;i<size;i++) mosalas(i);
+}                      
+void screen_preparation()
+{
+    int length_screen=1000;
+    int width_screen=900; 
+    initwindow(length_screen,width_screen);
+    setbkcolor(zamine_color);
+    cleardevice();
+ 	setcolor(15);  
+    hashiye(15,7);
+    draw_all_mosalasha();
+    draw_rectangle(220,100,100,50,3,7);
+    draw_rectangle(800,100,100,50,3,7);
+    settextjustify(1,4);
+    if (size==20) settextstyle(2,0,196);
+    else if (size==10) settextstyle(0,0,10);
+}                    
+void load_focus()
+{
+  if (size==20) k=2;
+  else if (size==10) k=1; 
+  else if (size==5) k=0.5;
+  if ((entered[focus[0]][0]==1)&&(entered[focus[0]][1]==0))
+  {
+     fillcolor(focus[0],14);
+     if (up_down[focus[0]]==1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(8/k),int(10/k),2);
+     else if (up_down[focus[0]]==-1) fill_draw_circle(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(9/k),int(10/k),2);
+  }
+  else if ((entered[focus[0]][0]==0)&&(entered[focus[0]][1]==1))
+  {
+    fillcolor(focus[0],14);
+    setbkcolor(14);
+    setcolor(10);
+    if (size==20) settextstyle(2,0,196);
+    if (up_down[focus[0]]==1) outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]+int(3/k),"?");
+    else if(up_down[focus[0]]==-1)outtextxy(x_coordinates[focus[0]],y_coordinates[focus[0]]-int(15/k),"?");
+  }                                                    
+  else if (spaced[focus[0]]==1)
+  {
+     fillcolor(focus[0],14);
+     insert_0123(focus[0],0);
+  }
+  else   fillcolor(focus[0],14);
+}                                                      
+void load_spaced()
+{
+     int i;
+     if (size==20) k=2;
+     else if (size==10) k=1; 
+     else if (size==5) k=0.5;
+     for (i=0;i<size*size;i++)
+     {
+         if (spaced[i]==1) 
+         {
+             fillcolor(i,7);
+             int adad = neighber_min(i);
+             insert_0123(i,1);
+         }
+     }   
+}
+void load_entered()
+{
+     if (size==20) k=2;
+     else if (size==10) k=1;
+     else if (size==5) k=0.5;
+     int i;
+     for (i=0;i<size*size;i++)
+     {
+         if ((entered[i][0]==1)&& (entered[i][1]==0))
+         {
+              if (up_down[i]==1) fill_draw_circle(x_coordinates[i],y_coordinates[i]+int(8/k),int(10/k),2);
+              else if (up_down[i]==-1) fill_draw_circle(x_coordinates[i],y_coordinates[i]-int(9/k),int(10/k),2);
+         }
+         if((entered[i][0]==0)&& (entered[i][1]==1))
+         {
+            setbkcolor(init_mosalas_color);
+            setcolor(10);
+            if (size==20) settextstyle(2,0,196);
+            if (up_down[i]==1)outtextxy(x_coordinates[i],y_coordinates[i]+int(3/k),"?"); 
+            else if (up_down[i]==-1) outtextxy(x_coordinates[i],y_coordinates[i]-int(15/k),"?");
+            setcolor(15);
+         }  
+     }
+} 
+     
+void new_game()
+{
+    for(i=0;i<400;i++)   
+    {
+      base_min[i]=0;;                   //araye shamele 0 va 1 baraye minha
+      entered[i][0]=0;   
+      entered[i][1]=0;                  //Mokhtasate markaze tamame mosalasha.
+      spaced[i]=0;
+    }
+    zamine_color=910986;
+    init_mosalas_color=342345;
+    focus[0]=0;                //araye shmele 0 va tanha 1 baraye namayeshe focus                                                               // Y '' ''.                   //Araye ke neshan midahad mosalas betarafe balast(1) ya paye
+    zaman[1]=0;
+    temp_min[0]=(size*size*20)/100;
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+    screen_preparation();
+    idetify_all_centers(500,100+int(30/(k)));
+	identify_all_up_down();
+    color_all_mosalas(init_mosalas_color);
+    random_min((size*size*20)/100);
+    display_integer_number(temp_min[0],800,100,3,15,size); 
+}            
+void save_game()
+{
+    FILE *f;
+    f = fopen("Nabian_save_game.bin","wb");
+    fwrite(base_min, sizeof(int),size*size,f);
+    fwrite(focus, sizeof(int),1, f);
+    fwrite(entered[0], sizeof(int),size*size,f);
+    fwrite(entered[1], sizeof(int),size*size,f);
+    fwrite(spaced, sizeof(int),size*size,f);
+    fwrite(temp_min, sizeof(int),1,f);
+    fwrite(&size, sizeof(int),1,f);
+    fwrite(&zamine_color,sizeof(int),1,f);
+    fwrite(&init_mosalas_color,sizeof(int),1,f);
+    fclose(f);
+}
+void load_game ()
+{
+    if (size==20) k=2;
+    else if (size==10) k=1;
+    else if (size==5) k=0.5;
+    int x_basepoint=500;                //X markaze avalin khane ke focus darad vaghti bazi aghaz mishavad.
+	int y_basepoint=100+int(30/k);
+    FILE *f;
+    f = fopen("Nabian_save_game.bin","rb");
+    fread(base_min, sizeof(int),size*size,f);
+    fread(focus, sizeof(int),1, f);
+    fread(entered[0], sizeof(int),size*size,f);
+    fread(entered[1], sizeof(int),size*size,f);
+    fread(spaced, sizeof(int),size*size,f);
+    fread(temp_min, sizeof(int),1,f);
+    fread(&size, sizeof(int),1,f);
+    fread(&zamine_color,sizeof(int),1,f);
+    fread(&init_mosalas_color,sizeof(int),1,f);
+    fclose(f);
+    screen_preparation();
+    idetify_all_centers(x_basepoint,y_basepoint);
+	identify_all_up_down();
+    color_all_mosalas(init_mosalas_color);
+    display_integer_number(temp_min[0],800,100,3,15,size); 
+    load_spaced();
+    load_entered();
+    load_focus();
+}    
+
+void paint_buttom(int x_buttom[],int y_buttom[],int focus,int length,int width,int color)
+{
+     setcolor(color);
+     for(i=0;i<4;i++) 
+        rectangle(x_buttom[focus]-length/2-i,y_buttom[focus]-width/2-i,x_buttom[focus]+length/2+i,y_buttom[focus]+width/2+i);
+     
+}
+void draw_menu1_buttoms()
+{
+    setbkcolor(5);
+    draw_rectangle(500,400,300,80,5,7);
+    outtextxy(500,400,"Back To Game");
+    draw_rectangle(500,500,300,80,5,7);
+    outtextxy(500,500,"Save");
+    draw_rectangle(500,600,300,80,5,7);
+    outtextxy(500,600,"Restart The Game");
+    draw_rectangle(500,700,300,80,5,7);
+    outtextxy(500,700,"Back To Main Menu");
+}   
+int next_focus_menu1(int x_buttom[],int y_buttom[],int menu1_focus[],int length,int width,int color,char ch)
+{
+      if (ch=='w')
+      {
+        if (menu1_focus[0]==0)
+        {
+           paint_buttom(x_buttom,y_buttom,0,length,width,7);
+           paint_buttom(x_buttom,y_buttom,3,length,width,color);
+           menu1_focus[0]=3;
+           return 0;
+        }
+        else if ((menu1_focus[0]==1)||(menu1_focus[0]==2)||(menu1_focus[0]==3))
+        {
+           paint_buttom(x_buttom,y_buttom,menu1_focus[0],length,width,7);
+           menu1_focus[0]=menu1_focus[0]-1;
+           paint_buttom(x_buttom,y_buttom,menu1_focus[0],length,width,color);
+           return 0;
+        }  
+      }
+     else if (ch=='s')
+      {
+        if (menu1_focus[0]==3)
+        {
+           paint_buttom(x_buttom,y_buttom,3,length,width,7);
+           paint_buttom(x_buttom,y_buttom,0,length,width,color);
+           menu1_focus[0]=0;
+           return 0;
+        }
+        else if ((menu1_focus[0]==0)||(menu1_focus[0]==1)||(menu1_focus[0]==2))
+        {
+           paint_buttom(x_buttom,y_buttom,menu1_focus[0],length,width,7);
+           menu1_focus[0]=menu1_focus[0]+1;
+           paint_buttom(x_buttom,y_buttom,menu1_focus[0],length,width,color);
+           return 0;
+        }  
+      }
+}     
+
+void menu1();
+void start_playing()
+ {
+    char ch=0;
+    while ( ch!=27)
+    {
+          ch=getch();          
+          if  ((ch=='w')||(ch=='a')||(ch=='s')||(ch=='d'))  keyboard_select(ch);     
+          else if (ch==32) space_key_action();
+          else if (ch==13) enter_key_action(); 
+          if(check_wining()) 
+          {
+            wining_effect();
+            //int win_time=zaman[1];
+            break;
+          }
+    }
+    if (ch==27) menu1();   
+ } 
+void menu1()
+{
+    closegraph();
+    initwindow(1000,900);
+    int x_buttom[4]={500,500,500,500};
+    int y_buttom[4]={400,500,600,700};
+    int menu1_focus[1]={0};
+    setbkcolor(9765);
+    cleardevice();
+    setcolor(15);
+    settextjustify(1,1);
+    draw_menu1_buttoms();
+    paint_buttom( x_buttom,y_buttom,0,300,80,11);
+    char ch=0;
+    while((ch!=32)&&(ch!=27))
+    {
+       ch=getch();
+       if((ch=='w')||(ch=='s'))  next_focus_menu1(x_buttom,y_buttom,menu1_focus,300,80,11,ch);
+    }
+    if (ch==32)
+    {
+               if ( menu1_focus[0]==0)   
+               {
+                  save_game();    
+                  load_game ();
+                  start_playing();
+               }
+               else if ( menu1_focus[0]==1)   
+               {
+                  save_game();    
+               }
+               else if ( menu1_focus[0]==2)   
+               {    
+                  new_game();
+                  start_playing();
+               }
+               else if ( menu1_focus[0]==3)   ch=0; 
+    }
+    else if (ch==27)
+    {
+       save_game();    
+       load_game ();
+       start_playing();
+    }
+    closegraph();
+}
+
+  
+int main()
+{                                                              // rasme jadvale mosalasi
+    new_game();
+    start_playing() ; 
+    save_game();
+    load_game ();
+    start_playing();
+    printf("X         Y          Up-Down\n");   
+    for(int i=0;i<size*size;i++) printf("%d      %d      %d        %d     %d    %d\n",x_coordinates[i],y_coordinates[i],i,up_down[i],base_min[i],spaced[i]); 
+ 
+    
+    //save_game(focus,base_min,entered,spaced,temp_min,size,zamine_color,init_mosalas_color);
+    //load_game (x_coordinates,y_coordinates,focus,base_min,up_down,entered,spaced,temp_min,size,zamine_color,init_mosalas_color);
+    //start_playing(x_coordinates,y_coordinates,focus,base_min,up_down,entered,spaced,temp_min,size,zamine_color,init_mosalas_color,zaman);
+    
+                  
+                          //Check expression.                                       //check exp.  
+    
+}
+    
